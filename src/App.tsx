@@ -1,15 +1,16 @@
 import { useState, useMemo } from 'react';
 import { StockTable } from './components/StockTable';
 import { SearchBar } from './components/SearchBar';
-import { StockChart } from './components/StockChart';
+import { StockDetailChart } from './components/StockDetailChart';
 import { useStockData } from './hooks/useStockData';
 import { useFavorites } from './hooks/useFavorites';
 import type { Stock } from './types/stock';
 
 function App() {
-  const { stocks, loading, error, refresh } = useStockData();
+  const { stocks, loading, error, isUsingSampleData, refresh } = useStockData();
   const { favorites, toggleFavorite } = useFavorites();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Stock | null;
     direction: 'asc' | 'desc';
@@ -66,10 +67,6 @@ function App() {
             </button>
           </div>
 
-          {!loading && !error && stocks.length > 0 && (
-            <StockChart stocks={filteredAndSortedStocks} />
-          )}
-
           <div className="bg-dark-surface border border-dark-border rounded-lg p-6">
             <StockTable 
               stocks={filteredAndSortedStocks} 
@@ -79,16 +76,29 @@ function App() {
               sortConfig={sortConfig}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
+              onStockClick={setSelectedStock}
             />
           </div>
 
           {stocks.length > 0 && (
             <div className="text-center text-sm text-gray-500">
               <p>Showing {filteredAndSortedStocks.length} of {stocks.length} stocks</p>
+              {isUsingSampleData && (
+                <p className="mt-1 text-yellow-500">
+                  ⚠️ API failed, using sample data - Last updated: August 21, 2025
+                </p>
+              )}
             </div>
           )}
         </div>
       </div>
+      
+      {selectedStock && (
+        <StockDetailChart 
+          stock={selectedStock} 
+          onClose={() => setSelectedStock(null)} 
+        />
+      )}
     </div>
   );
 }

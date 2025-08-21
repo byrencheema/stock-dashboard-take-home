@@ -9,9 +9,10 @@ interface StockTableProps {
   sortConfig: { key: keyof Stock | null; direction: 'asc' | 'desc' };
   favorites: Set<string>;
   onToggleFavorite: (symbol: string) => void;
+  onStockClick: (stock: Stock) => void;
 }
 
-export const StockTable: React.FC<StockTableProps> = ({ stocks, loading, error, onSort, sortConfig, favorites, onToggleFavorite }) => {
+export const StockTable: React.FC<StockTableProps> = ({ stocks, loading, error, onSort, sortConfig, favorites, onToggleFavorite, onStockClick }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -64,8 +65,8 @@ export const StockTable: React.FC<StockTableProps> = ({ stocks, loading, error, 
         </thead>
         <tbody>
           {stocks.map((stock) => (
-            <tr key={stock.symbol} className="border-b border-dark-border hover:bg-dark-surface transition-colors">
-              <td className="py-4 text-center">
+            <tr key={stock.symbol} className="border-b border-dark-border hover:bg-dark-surface transition-colors cursor-pointer">
+              <td className="py-4 text-center" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onToggleFavorite(stock.symbol)}
                   className="text-gray-400 hover:text-yellow-500 transition-colors"
@@ -73,16 +74,16 @@ export const StockTable: React.FC<StockTableProps> = ({ stocks, loading, error, 
                   {favorites.has(stock.symbol) ? '★' : '☆'}
                 </button>
               </td>
-              <td className="py-4 font-medium">{stock.symbol}</td>
-              <td className="py-4 text-gray-400">{stock.name}</td>
-              <td className="py-4 text-right font-medium">{formatPrice(stock.price)}</td>
-              <td className={`py-4 text-right font-medium ${stock.change >= 0 ? 'text-green-stock' : 'text-red-stock'}`}>
+              <td className="py-4 font-medium" onClick={() => onStockClick(stock)}>{stock.symbol}</td>
+              <td className="py-4 text-gray-400" onClick={() => onStockClick(stock)}>{stock.name}</td>
+              <td className="py-4 text-right font-medium" onClick={() => onStockClick(stock)}>{formatPrice(stock.price)}</td>
+              <td className={`py-4 text-right font-medium ${stock.change >= 0 ? 'text-green-stock' : 'text-red-stock'}`} onClick={() => onStockClick(stock)}>
                 {stock.change >= 0 ? '+' : ''}{formatPrice(stock.change)}
               </td>
-              <td className={`py-4 text-right font-medium ${stock.change >= 0 ? 'text-green-stock' : 'text-red-stock'}`}>
+              <td className={`py-4 text-right font-medium ${stock.change >= 0 ? 'text-green-stock' : 'text-red-stock'}`} onClick={() => onStockClick(stock)}>
                 {stock.change >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
               </td>
-              <td className="py-4 text-right text-gray-400">{formatNumber(stock.volume)}</td>
+              <td className="py-4 text-right text-gray-400" onClick={() => onStockClick(stock)}>{formatNumber(stock.volume)}</td>
             </tr>
           ))}
         </tbody>

@@ -6,13 +6,15 @@ export const useStockData = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUsingSampleData, setIsUsingSampleData] = useState(false);
 
   const loadStocks = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchStockData();
+      const { stocks: data, isUsingSampleData: usingSample } = await fetchStockData();
       setStocks(data);
+      setIsUsingSampleData(usingSample);
     } catch (err) {
       setError('Failed to load stock data. Please try again later.');
       console.error('Error loading stocks:', err);
@@ -25,5 +27,5 @@ export const useStockData = () => {
     loadStocks();
   }, []);
 
-  return { stocks, loading, error, refresh: loadStocks };
+  return { stocks, loading, error, isUsingSampleData, refresh: loadStocks };
 };
